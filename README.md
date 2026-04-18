@@ -20,7 +20,7 @@ AutoPinEngine is an end-to-end n8n automation pipeline that:
 5. **Generates SEO content** (title, description, tagline, board) for each pin using GPT-4.1 Mini
 6. **Saves all outputs** back to Google Sheets and to per-account sheets for scheduling/publishing
 
-The system is built to run multiple Discord accounts simultaneously, each with its own port, token, prompt style, and Placid template — making it capable of producing tens or hundreds of unique Pinterest pins per keyword with minimal manual intervention.
+The system supports up to 10 Discord/Midjourney accounts simultaneously, each with its own port, token, prompt style, and Placid template — making it capable of producing tens or hundreds of unique Pinterest pins per keyword with minimal manual intervention.
 
 ---
 
@@ -75,7 +75,7 @@ Google Sheets (Keywords)
 
 ### Workflow 1 — Main Orchestrator
 
-**File:** Main Workflow JSON  
+**File:** `main_workflow.json`
 **Purpose:** Master controller. Reads the spreadsheet, dispatches jobs to the sub-workflow, and manages pipeline state.
 
 ---
@@ -84,18 +84,19 @@ Google Sheets (Keywords)
 
 | Node | Type | Description |
 |------|------|-------------|
-| `config` | Set | Defines `nbrAccont` (max accounts to use, e.g. 3) and `accont selected` (array of active account IDs e.g. `[1,2,3,5,6]`) |
-| `midourny promps` | Set | Defines Midjourney suffix prompts per account (accounts 1–10). All currently use: `"Different from its predecessor Focus on the details --iw 2 --ar 1:1 --v 7 --raw"` |
-| `account tokens` | Set | Stores Discord/Midjourney API tokens per account (accounts 1–10) |
-| `account port` | Set | Stores port numbers for the self-hosted Midjourney API per account (e.g. account 1 → port 5006, account 3 → port 5007) |
+| `config` | Set | Defines `nbrAccont` (max accounts to use) and `accont selected` (array of active account IDs e.g. `[1,2,3,5,6]`) |
+| `midourny promps` | Set | Defines Midjourney suffix prompts per account (accounts 1–10) |
+| `account tokens` | Set | Stores Discord/Midjourney API tokens per account — **replace with your own tokens** |
+| `account port` | Set | Stores port numbers for the self-hosted Midjourney API per account |
+
+> ⚠️ **Never hardcode tokens or ports in the workflow JSON when pushing to GitHub.** Use n8n credentials or environment variables. See [Setup](#️-setup--configuration) below.
 
 ---
 
 #### 📊 Google Sheets Data Source
 
-**Spreadsheet ID:** `1-IV5--hOOorr8ndeREXnktOrVeKI21Ja0DARc-rmL-Y`  
-**Sheet:** `Feuille 1` (gid=0)  
-**Name:** `5 My Coffee Blog 03/08`
+**Spreadsheet:** Your own Google Sheet (configure the spreadsheet ID in each Google Sheets node)
+**Sheet:** Main sheet (e.g. `Sheet1`)
 
 **Columns used:**
 
@@ -122,23 +123,23 @@ Get keyword → If (KEYWORDS not empty) → limits return (cap to nbrAccont)
 → Sub-Workflow (get="v") → line generation wait → Loop back
 ```
 
-- Reads all rows where `state` is empty (no filter)
+- Reads all rows where `state` is empty
 - Filters to `nbrAccont` rows maximum
 - Loops through each row, builds a `vdata` array with each account's token, port, and Midjourney suffix prompt
 - Calls the sub-workflow with `get="v"` to trigger Midjourney `/imagine` for each account
-- After each sub-workflow completes, a `line generation` wait node (no timeout = resume immediately) feeds back into the loop
+- After each sub-workflow completes, a `line generation` wait node feeds back into the loop
 
 **Stage 2 — Upscaling (state: "u")**
 
 ```
 get data for variation (filter state="u") → Loop Over Items (batchSize 1)
-→ SplitInBatches → Wait2 (3s between accounts) → get data for variation
+→ SplitInBatches → Wait2 (3s between accounts)
 → get all v id (build vdata with valid v-hashes) → Sub-Workflow (get="u")
 → between line upscale wait → Loop back
 ```
 
 - Reads rows where `state = "u"` (Midjourney generation done, ready to upscale)
-- For each row, collects all valid `v{n}` hashes (skipping accounts that already have a `U2 N` URL)
+- For each row, collects all valid `v{n}` hashes, skipping accounts that already have a `U2 N` URL
 - Calls sub-workflow with `get="u"` to trigger upscaling (U1–U4) per account
 - A 3-second wait between batch items prevents Discord rate-limiting
 
@@ -152,27 +153,27 @@ Get row(s) in sheet (state="p") → limits return1 → get all possibility
 
 - Reads rows where `state = "p"` (upscaling done, ready for Placid rendering)
 - `get all possibility`: builds every valid image pair combination (U1+U2, U1+U3, U1+U4, U2+U3, etc.) for each template index
-- `splite images u`: maps each combo to a random prompt variant (title/description/tagline/board - 4 variants per account), the Placid API key, and the correct template UUID
+- `splite images u`: maps each combo to a random prompt variant (4 variants per account), the Placid API key, and the correct template UUID
 - Sub-workflow renders each combo into a Placid image and generates AI content
 
 ---
 
 #### 🧩 Supporting Config Nodes
 
-**`set place id`** — Stores Placid API credentials and template UUIDs per account:
+**`set place id`** — Stores Placid API credentials and template UUIDs per account.
+Replace placeholder values with your own:
 
 ```json
 {
-  "apikey": "placid-v1opm0th6cy06brc-fwfvvukommcttgpn",
-  "template1": "ucrl74ybl0ov5",
-  "template2": "be9qjo6esdk70",
-  "template3": "czz6uxb9rk3tw",
-  "template4": "twtjzcuh9hfk9",
-  "template5": "tlilcybvxx2ku",
-  "template6": "pd0yedlfv1ofr"
+  "apikey": "YOUR_PLACID_API_KEY",
+  "template1": "YOUR_TEMPLATE_1_UUID",
+  "template2": "YOUR_TEMPLATE_2_UUID",
+  "template3": "YOUR_TEMPLATE_3_UUID",
+  "template4": "YOUR_TEMPLATE_4_UUID",
+  "template5": "YOUR_TEMPLATE_5_UUID",
+  "template6": "YOUR_TEMPLATE_6_UUID"
 }
 ```
-(Currently identical across all 10 accounts — can be per-account)
 
 **`promps`** — 10 different Pinterest copywriting prompt sets (accounts 1–10). Each set contains 4 variants of:
 - `title 1`–`title 4` — Hook-based Pinterest title formulas (under 90–100 chars, starting with keyword)
@@ -183,9 +184,9 @@ Get row(s) in sheet (state="p") → limits return1 → get all possibility
 
 ---
 
-### Workflow 2 — Sub-Workflow (Loop Api Link Strawberry Discourd Brave)
+### Workflow 2 — Sub-Workflow
 
-**File:** Sub-Workflow JSON  
+**File:** `sub_workflow.json`
 **Purpose:** Executes one of three actions depending on the `get` parameter received from the main workflow.
 
 ---
@@ -194,7 +195,7 @@ Get row(s) in sheet (state="p") → limits return1 → get all possibility
 
 ```
 When Executed by Another Workflow
-  → urls (set base URL: http://82.197.93.19)
+  → urls (set base URL: YOUR_MIDJOURNEY_SERVER_URL)
   → Switch (route based on get: "v" / "u" / "p")
 ```
 
@@ -223,19 +224,19 @@ splite v tax → code (set index) → get first variation1 (POST /imagine)
 ```
 
 **Process:**
-1. Each item in `vdata` is split into individual items
-2. A POST to `/imagine` endpoint sends: `keyword + midjourney_suffix` as the prompt, with a webhook URL for result notification
-3. The workflow polls `/status?hash=X` every ~1 second until `status === "done"`
+1. Each item in `vdata` is split into individual account items
+2. A POST to `/imagine` sends: `keyword + midjourney_suffix` as the prompt, with a webhook URL for the result callback
+3. The workflow polls `/status?hash=X` until `status === "done"`
 4. On completion, saves the grid image URL to `image generated Account {N}` and the job hash to `v{N}` in Google Sheets
 5. Sets `state = "u"` to signal the main workflow that generation is complete
 
-**API Calls:**
+**API shape:**
 ```
-POST http://82.197.93.19:{port}/imagine
+POST http://YOUR_SERVER_IP:{port}/imagine
   Headers: X-API-Token: {token}, Content-Type: application/json
-  Body: { "prompt": "{keyword} {promp}", "webhook_url": "...", "webhook_type": "result" }
+  Body: { "prompt": "{keyword} {suffix}", "webhook_url": "{YOUR_N8N_WEBHOOK}", "webhook_type": "result" }
 
-GET http://82.197.93.19:{port}/status?hash={hash}
+GET http://YOUR_SERVER_IP:{port}/status?hash={hash}
   Headers: X-API-Token: {token}
   Response: { "status": "done"|"pending", "result": { "imageUrl": "...", "hash": "..." } }
 ```
@@ -245,33 +246,29 @@ GET http://82.197.93.19:{port}/status?hash={hash}
 #### Branch B — `get="u"` (Midjourney Upscaling U1–U4)
 
 ```
-splite u tax → codev (set imagegeneratefrom, index) → U1 (POST /upscale #2)
-→ Wait2 (1s) → check done2 → If (done?)
-  ├── YES → for u image → Update row in sheet (save U2 N URL)
-  │         → HTTP Request4 (POST /upscale #1)
-  │         → Wait3 (1s) → check done3 → If3
-  │           ├── YES → for u image1 → Update row in sheet6 (save U1 N URL)
-  │           │         → HTTP Request6 (POST /upscale #3)
-  │           │         → Wait5 → check done5 → If5
-  │           │           ├── YES → for u image3 → Update row in sheet8 (save U3 N URL)
-  │           │           │         → HTTP Request5 (POST /upscale #4)
-  │           │           │         → Wait4 → check done4 → If4
-  │           │           │           ├── YES → for u image2 → Update row in sheet7 (save U4 N URL)
-  │           │           │           │         → brtween account (wait) → for state → Update row in sheet2 (state="p")
-  │           │           │           └── NO  → Wait4 (loop)
-  │           │           └── NO  → Wait5 (loop)
-  │           └── NO  → Wait3 (loop)
-  └── NO  → Wait2 (loop)
+splite u tax → codev (set imagegeneratefrom, index) → POST /upscale #2
+→ Wait (1s) → check done2 → If (done?)
+  ├── YES → save U2 → POST /upscale #1
+  │         → Wait → check done3 → If3
+  │           ├── YES → save U1 → POST /upscale #3
+  │           │         → Wait → check done5 → If5
+  │           │           ├── YES → save U3 → POST /upscale #4
+  │           │           │         → Wait → check done4 → If4
+  │           │           │           ├── YES → save U4 → set state="p"
+  │           │           │           └── NO  → loop
+  │           │           └── NO  → loop
+  │           └── NO  → loop
+  └── NO  → loop
 ```
 
 **Process:**
-1. Triggers upscales for all 4 variations (U1, U2, U3, U4) of the Midjourney grid sequentially
-2. Each upscale polls until done, then saves the resulting URL to `U{N} {account_index}` in Google Sheets
-3. After all 4 are saved, sets `state = "p"` to proceed to Placid rendering
+1. Triggers upscales for all 4 variations (U1–U4) of the Midjourney grid sequentially
+2. Each upscale polls until done, then saves the URL to `U{N} {account_index}` in Google Sheets
+3. After all 4 are saved, sets `state = "p"`
 
-**API Calls:**
+**API shape:**
 ```
-POST http://82.197.93.19:{port}/upscale
+POST http://YOUR_SERVER_IP:{port}/upscale
   Body: { "jobId": "{v_hash}", "upscale_number": 1|2|3|4 }
 ```
 
@@ -290,38 +287,37 @@ POST http://82.197.93.19:{port}/upscale
 
 ```
 splite u tax2 → Loop Over Items2 (batch through combos)
-  ├── for state1 → Update row in sheet3 (set state="d" = done)
+  ├── for state1 → Update row in sheet3 (set state="d")
   └── generate title (GPT-4.1 Mini) → sae title
       → generate description → description
       → tagline → tag line
       → generate board (structured output) → Edit Fields
       → get templite1 (POST Placid API)
-      → place id photo (wait 2s) → HTTP Request (GET Placid image status)
+      → place id photo (wait 2s) → HTTP Request (GET Placid status)
       → Switch1:
-          ├── image_url exists → set data for output → Append row in sheet (account sheet)
-          ├── error → set data for output (skip)
-          └── not ready → place id photo (retry loop)
+          ├── image_url exists → set data for output → Append row in account sheet
+          ├── error → skip
+          └── not ready → retry loop
       → Loop Over Items2 (next combo)
 ```
 
 **Process:**
-1. Each combo in `vdata` (containing U1, U2, keyword, title prompt, description prompt, tagline prompt, board prompt, accountapi, template UUID) is processed one by one
-2. GPT-4.1 Mini generates:
-   - **Title**: A Pinterest hook title under 90–100 characters
-   - **Description**: SEO-optimized description up to 480–500 characters
-   - **Tagline**: A 3-word max punchy phrase
-   - **Board**: One of 20 predefined Pinterest food boards
-3. Placid API is called to render the template with U1, U2 images, the keyword as title, and the AI tagline
-4. The workflow polls Placid until the rendered image URL is ready
-5. Outputs are appended to the per-account sheet: `account {N}` (columns: Placid url, Board, Title, Description)
-6. The main row state is set to `"d"` (done)
+1. Each combo in `vdata` (U1 URL, U2 URL, keyword, AI prompts, Placid API key, template UUID) is processed one by one
+2. GPT-4.1 Mini generates sequentially:
+   - **Title** — Pinterest hook title under 90–100 characters
+   - **Description** — SEO description up to 480–500 characters
+   - **Tagline** — 3-word max punchy phrase
+   - **Board** — one of 20 predefined Pinterest food boards (via Structured Output Parser)
+3. Placid API renders the template using U1, U2, the keyword, and the AI tagline
+4. The workflow polls Placid until the image URL is ready
+5. Outputs are appended to the per-account sheet
 
-**Placid API Call:**
+**Placid API shape:**
 ```json
 POST https://api.placid.app/api/rest/images
-Authorization: Bearer {apikey}
+Authorization: Bearer YOUR_PLACID_API_KEY
 {
-  "template_uuid": "{template_id}",
+  "template_uuid": "YOUR_TEMPLATE_UUID",
   "layers": {
     "U1": { "image": "{image1_url}" },
     "U2": { "image": "{image2_url}" },
@@ -348,7 +344,7 @@ Authorization: Bearer {apikey}
 
 The pipeline supports up to 10 accounts, each independently configurable:
 
-| Setting | Per-Account Storage |
+| Setting | Where to Configure |
 |---------|-------------------|
 | **Midjourney Token** | `account tokens` Set node → `account {N}` |
 | **API Port** | `account port` Set node → `account {N}` |
@@ -368,6 +364,7 @@ The pipeline supports up to 10 accounts, each independently configurable:
 Each account (1–10) has a unique **copywriting personality** with 4 variants of title/description/tagline/board prompts. A random number 1–4 is selected per run, ensuring variety.
 
 **Account Personalities:**
+
 | Account | Style |
 |---------|-------|
 | 1 | Hook-phrase system (For Moms, Under $20, Lazy, Aesthetic, etc.) |
@@ -405,64 +402,92 @@ Each Google Sheets row moves through the following states:
 ## 🧱 Key Technical Components
 
 ### Self-Hosted Midjourney API
-- Base URL: `http://82.197.93.19`
-- One port per account (e.g. 5006, 5007, ...)
+- Base URL: configure in the `urls` Set node
+- One port per account (configure in `account port` Set node)
 - Endpoints:
-  - `POST :{port}/imagine` — submit generation job
+  - `POST :{port}/imagine` — submit a generation job
   - `GET :{port}/status?hash={hash}` — poll job status
   - `POST :{port}/upscale` — upscale one of 4 grid images
 - Authentication: `X-API-Token` header
 
 ### Placid (Template Rendering)
 - REST API: `https://api.placid.app/api/rest/images`
-- 6 template UUIDs per account (template1–template6)
+- 6 template UUIDs per account (template1–template6) — configure in `set place id` node
 - Template layers: `U1` (image), `U2` (image), `Title` (text), `Tag Line` (text)
-- Bearer auth
+- Bearer auth via n8n credential
 
 ### OpenAI (Content Generation)
 - Model: `gpt-4.1-mini`
 - Sequential chain: title → description → tagline → board
 - Board uses `Structured Output Parser` for reliable JSON output
+- Configure via n8n OpenAI credential
 
 ### Google Sheets (State + Storage)
-- Main sheet (`Feuille 1`): keyword rows, state tracking, all image URLs
+- Main sheet: keyword rows, state tracking, all image URLs
 - Per-account sheets (`account 1`, `account 2`, ...): final pin data for publishing
+
+---
+
+## ⚙️ Setup & Configuration
+
+### 1. n8n Credentials to Create
+
+| Credential | Type | Used For |
+|-----------|------|---------|
+| Google Sheets OAuth2 | `googleSheetsOAuth2Api` | Reading/writing spreadsheet data |
+| OpenAI API Key | `openAiApi` | GPT-4.1 Mini content generation |
+| Placid Bearer Token | `httpBearerAuth` | Placid image rendering API |
+
+### 2. Placeholders to Replace in the Workflow JSONs
+
+| Placeholder | Replace With |
+|-------------|-------------|
+| `YOUR_SPREADSHEET_ID` | Your Google Sheets spreadsheet ID (from the URL) |
+| `YOUR_MIDJOURNEY_SERVER_IP` | IP address of your self-hosted Midjourney API server |
+| `YOUR_ACCOUNT_N_TOKEN` | Discord/Midjourney token for account N |
+| `YOUR_ACCOUNT_N_PORT` | API port for account N (e.g. 5006, 5007, …) |
+| `YOUR_PLACID_API_KEY` | Your Placid API key |
+| `YOUR_TEMPLATE_N_UUID` | Placid template UUID for template slot N |
+| `YOUR_N8N_WEBHOOK_URL` | Your n8n webhook URL for Midjourney result callbacks |
+| `YOUR_SUB_WORKFLOW_ID` | n8n ID of the sub-workflow after importing it |
+
+### 3. Google Sheet Structure
+
+**Main sheet columns:**
+```
+KEYWORDS | link | state | account | templite | v1…v10 | image generated Account 1…10 | U1 1…U4 10
+```
+
+**Per-account output sheets** (one per account, named `account 1`, `account 2`, etc.):
+```
+Placid url | Board | Title | Description | keyword | link
+```
+
+### 4. Workflow Import Order
+
+1. Import `sub_workflow.json` first — note its workflow ID in n8n
+2. Replace `YOUR_SUB_WORKFLOW_ID` in `main_workflow.json` with the ID from step 1
+3. Import `main_workflow.json`
+4. Attach all credentials in both workflows
 
 ---
 
 ## 🚀 How to Run
 
-1. **Prepare the spreadsheet:**
-   - Add keyword rows to the main sheet
-   - Fill in `KEYWORDS`, `link`, `account` (e.g. `1,3`), `templite` (e.g. `1,2,3`)
-   - Leave `state` empty
-
-2. **Configure accounts:**
-   - Update `account tokens`, `account port`, `midourny promps` Set nodes with real values
-   - Update `set place id` with your Placid API keys and template UUIDs
-   - Set `config.nbrAccont` to control parallelism
-   - Set `config["accont selected"]` to your active account IDs
-
-3. **Run the main workflow:**
-   - Click "Execute workflow" (manual trigger)
-   - The pipeline will process rows through all 3 stages automatically
-
-4. **Monitor progress:**
-   - Watch the `state` column in Google Sheets advance from empty → `u` → `p` → `d`
-   - Final pin data appears in the per-account sheets
+1. **Prepare the spreadsheet** — add rows with `KEYWORDS`, `link`, `account`, and `templite` filled in; leave `state` empty
+2. **Configure the Set nodes** — update tokens, ports, Placid API keys, template UUIDs
+3. **Execute the main workflow** — click "Execute workflow" (manual trigger)
+4. **Monitor via Google Sheets** — watch `state` advance: empty → `u` → `p` → `d`; final pins appear in per-account sheets
 
 ---
 
-## ⚠️ Important Notes & Limitations
+## ⚠️ Important Notes
 
-- **Rate limiting:** The workflow uses Wait nodes (1–3 seconds) between accounts to avoid Discord/Midjourney bans
-- **Sequential upscaling:** U1–U4 are done sequentially per account (not parallel) due to Midjourney API constraints
-- **Retry logic:** HTTP Request nodes for Midjourney have `retryOnFail: true` with 5-second delays
-- **Placid retry:** If a Placid image isn't ready, the workflow loops back to check again (Switch1 → output 3)
-- **Error handling:** Most Google Sheets update nodes and Placid calls use `onError: continueRegularOutput` to avoid stopping the whole pipeline on one failure
-- **Account 2 token** is currently set to `"2"` (placeholder — needs real token)
-- **Accounts 4, 5** ports are currently `"4"`, `"5"` (placeholders — need real port numbers)
-- **All Placid templates** currently share one API key — differentiate per account if needed
+- **Rate limiting:** Wait nodes (1–3 seconds) between accounts prevent Discord/Midjourney bans
+- **Sequential upscaling:** U1–U4 are processed one at a time per account due to API constraints
+- **Retry logic:** Midjourney HTTP requests use `retryOnFail: true` with 5-second delays
+- **Placid retry:** If a rendered image isn't ready yet, the workflow loops back automatically
+- **Error handling:** Most nodes use `onError: continueRegularOutput` so one failure doesn't halt the whole pipeline
 
 ---
 
@@ -478,20 +503,13 @@ Each Google Sheets row moves through the following states:
 
 ---
 
-## 🗺️ File Reference
+## 🔒 Security Notes
 
-| Item | ID / Value |
-|------|-----------|
-| Main spreadsheet | `1-IV5--hOOorr8ndeREXnktOrVeKI21Ja0DARc-rmL-Y` |
-| Sub-workflow ID | `W1PpkWNTEJutazoY` |
-| Midjourney base URL | `http://82.197.93.19` |
-| Placid API endpoint | `https://api.placid.app/api/rest/images` |
-| OpenAI model | `gpt-4.1-mini` |
-| n8n webhook (imagine result) | `.../webhook/8954db7c-bf8b-417a-85c3-0c0d08bc95f5` |
-| Google Sheets credential | `Google Sheets account 3` (ID: `KtJ0AOOeD4DpObI5`) |
-| OpenAI credential | `OpenAi account` (ID: `AOGEFNkcTLTrdEo7`) |
-| Placid credential | `Bearer Auth account` (ID: `UqeyCyVhC8SGBLb9`) |
+- **Never commit real tokens, API keys, server IPs, or spreadsheet IDs** to version control
+- Store all secrets via n8n credentials or environment variables
+- The workflow JSON files in this repo should contain only placeholder values before committing
+- Consider restricting your self-hosted Midjourney API server to accept requests only from your n8n server IP
 
 ---
 
-*Generated documentation for AutoPinEngine — a fully automated Pinterest content factory.*
+*AutoPinEngine — a fully automated Pinterest content factory built on n8n.*
