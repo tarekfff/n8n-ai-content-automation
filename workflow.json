@@ -1,0 +1,1412 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -3264,
+        800
+      ],
+      "id": "0ad47ad1-b511-4ddc-bdd8-06f2314fa063",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "093bb78b-6218-4e8e-8816-e20944285110",
+              "name": "nbrAccont",
+              "value": 3,
+              "type": "number"
+            },
+            {
+              "id": "7814fa3e-36a7-4b0a-b22d-77b3174b29dc",
+              "name": "accont selected",
+              "value": "[1,2,3,5,6]",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3040,
+        800
+      ],
+      "id": "b0a2bf1d-edd4-4320-89b8-1694952be7e6",
+      "name": "config"
+    },
+    {
+      "parameters": {
+        "options": {
+          "reset": false
+        }
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -1216,
+        816
+      ],
+      "id": "4093a9ab-3287-4edc-ac71-882a83b37554",
+      "name": "Loop Over Items2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst tokens = $('account tokens').first().json;\nconst ports = $('account port').first().json;\n\nconst rawAccount = $input.first().json.account;\nconst indexes = String(rawAccount)\n  .split(',')\n  .map(s => parseInt(s.trim(), 10))\n  .filter(n => !isNaN(n));\n\nconst result = [];\n\nfor (const i of indexes) {\n  const promp = $('midourny promps').first().json[`account ${i}`] || \"\";\n  const token = tokens[`account ${i}`] || \"\";\n  const port = ports[`account ${i}`] || \"\";\n\n  result.push({\n    promp: promp,\n    index: i,\n    token: token,\n   port: port,\n  });\n}\n\nreturn [\n  {\n    json: {\n      vdata: result\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -832,
+        832
+      ],
+      "id": "24fe8d9e-f66a-450e-ab16-ad888aa4cdf6",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().slice(0, $('config').first().json.nbrAccont);\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1568,
+        816
+      ],
+      "id": "c7e06458-91e8-4bae-ac66-37c44df806d2",
+      "name": "limits return"
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -48,
+        528
+      ],
+      "id": "ff72b86b-41df-479e-bb6a-8da0acc661b4",
+      "name": "Wait2",
+      "webhookId": "c5b2bffd-09c2-49d6-ae33-a2fdd1c69a12"
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "id": "c69f26ed-96c9-4092-a962-00e08d123e48",
+      "name": "SplitInBatches1",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 1,
+      "position": [
+        -272,
+        528
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        400,
+        528
+      ],
+      "id": "47164565-9012-4e96-849f-070dac39b3b7",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1-IV5--hOOorr8ndeREXnktOrVeKI21Ja0DARc-rmL-Y",
+          "mode": "list",
+          "cachedResultName": "5 My Coffee Blog 03/08",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-IV5--hOOorr8ndeREXnktOrVeKI21Ja0DARc-rmL-Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Feuille 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-IV5--hOOorr8ndeREXnktOrVeKI21Ja0DARc-rmL-Y/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "state",
+              "lookupValue": "u"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        176,
+        528
+      ],
+      "id": "0b8be3ed-bf35-4761-93dc-25ce04a7525a",
+      "name": "get data for variation",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "KtJ0AOOeD4DpObI5",
+          "name": "Google Sheets account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "W1PpkWNTEJutazoY",
+          "mode": "list",
+          "cachedResultName": "Loop Api Link Strawberry Discourd Brave"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "get": "v",
+            "keyword": "={{ $('Get keyword').item.json.KEYWORDS }}",
+            "row_number": "={{ $('Get keyword').item.json.row_number }}",
+            "vdata": "={{ $json.vdata }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "nbr",
+              "displayName": "nbr",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "array",
+              "removed": true
+            },
+            {
+              "id": "keyword",
+              "displayName": "keyword",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number"
+            },
+            {
+              "id": "get",
+              "displayName": "get",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "vdata",
+              "displayName": "vdata",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "array"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "mode": "each",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -608,
+        832
+      ],
+      "id": "4c85fd6e-6753-4b1e-942b-6c188689f820",
+      "name": "make midjourny v",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "W1PpkWNTEJutazoY",
+          "mode": "list",
+          "cachedResultName": "Loop Api Link Strawberry Discourd Brave"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "get": "u",
+            "vdata": "={{ $json.vdata }}",
+            "nbr": "={{ $('config').item.json[\"accont selected\"] }}",
+            "row_number": "={{ $('get data for variation').item.json.row_number }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "nbr",
+              "displayName": "nbr",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "array",
+              "removed": false
+            },
+            {
+              "id": "keyword",
+              "displayName": "keyword",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number"
+            },
+            {
+              "id": "get",
+              "displayName": "get",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "vdata",
+              "displayName": "vdata",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "array"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        848,
+        624
+      ],
+      "id": "4ac97033-5c72-4acc-9626-d62ed2b01315",
+      "name": "get u from v",
+      "alwaysOutputData": false,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst tokens = $('account tokens').first().json;\nconst ports = $('account port').first().json;\nconst rawAccount = $input.first().json.account;\nconst indexes = String(rawAccount)\n  .split(',')\n  .map(s => parseInt(s.trim(), 10))\n  .filter(n => !isNaN(n));\n\nconst result = [];\n\nfor (const i of indexes) {\n  const key = `v${i}`;\n  const value = input[key];\n\n  const keyv = `Midjourny image ${i} 1,2,3,4`;\n  const valuev = input[keyv];\n\n  const imageGeneratedKey = `U2 ${i}`;\n  const imageGeneratedValue = input[imageGeneratedKey];\n\n  const token = tokens[`account ${i}`] || \"\";\n  const port = ports[`account ${i}`] || \"\";\n  if (\n    value &&\n    value.trim() !== '' &&\n    !(typeof imageGeneratedValue === 'string' &&\n      imageGeneratedValue.startsWith(\"https://cdn.discordapp.com/attachments/\"))\n  ) {\n    result.push({\n      v: value,\n      vchoose: valuev,\n      index: i,\n      token: token,\n      port: port\n    });\n  }\n}\n\nreturn [\n  {\n    json: {\n      vdata: result\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        624,
+        624
+      ],
+      "id": "26ab6110-dd85-479c-8225-7b3aeefca7be",
+      "name": "get all v id",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e3d4bc94-5aa5-4fb8-b730-04f637fc7226",
+              "leftValue": "={{ $json.KEYWORDS }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1904,
+        800
+      ],
+      "id": "979a2997-a45b-437d-8ac3-bd37720f1757",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1-IV5--hOOorr8ndeREXnktOrVeKI21Ja0DARc-rmL-Y",
+          "mode": "list",
+          "cachedResultName": "5 My Coffee Blog 03/08",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-IV5--hOOorr8ndeREXnktOrVeKI21Ja0DARc-rmL-Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Feuille 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-IV5--hOOorr8ndeREXnktOrVeKI21Ja0DARc-rmL-Y/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "state",
+              "lookupValue": "p"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        912,
+        144
+      ],
+      "id": "3fffbd9e-9d48-4361-9c90-1f5f808b1a46",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "KtJ0AOOeD4DpObI5",
+          "name": "Google Sheets account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\n\n// Get account list from the current sheet row\nconst rawAccount = $('Loop Over Items1').item.json['account'];\nconst indexes = String(rawAccount)\n  .split(',')\n  .map(s => parseInt(s.trim(), 10))\n  .filter(n => !isNaN(n));\n\nconst promptsData = $('promps').first().json;\nconst Data = $('set place id').first().json;\n\nconst result = [];\n\nconst templateNumber = input.templite_combo_number;\nconst accounts = input.accounts || [];\n\nfor (const accObj of accounts) {\n  const acc = accObj.account;\n\n  // Only process accounts in the per-row account list\n  if (!indexes.includes(acc)) continue;\n\n  const promptKey = `promp accont ${acc}`;\n  const promptSet = promptsData[promptKey];\n\n  if (!promptSet) {\n    throw new Error(`No prompts found for account index ${acc}`);\n  }\n\n  const placeKey = `account ${acc}`;\n  const placeSet = Data[placeKey];\n\n  if (!placeSet) {\n    throw new Error(`No place config found for account ${acc}`);\n  }\n\n  const randomNum = Math.floor(Math.random() * 4) + 1;\n\n  result.push({\n    U1: accObj.image1_url || \"\",\n    U2: accObj.image2_url || \"\",\n    index: acc,\n    keyword: input.KEYWORDS || \"\",\n    row_number: input.row_number || \"\",\n    image_url: accObj.image1_url || \"\",\n    templite: templateNumber || \"\",\n    combo_label: accObj.combo_label || \"\",\n    state: input.state || \"\",\n    link: input.link || \"\",\n    title: promptSet[`title ${randomNum}`],\n    accountapi: placeSet[\"apikey\"],\n    template: placeSet[`template${templateNumber}`],\n    description: promptSet[`description ${randomNum}`],\n    tagline: promptSet[`tagline ${randomNum}`],\n    board: promptSet[`board ${randomNum}`],\n  });\n}\n\nreturn [\n  {\n    json: {\n      vdata: result,\n    },\n  },\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2288,
+        80
+      ],
+      "id": "46e028ed-295a-4a64-b15d-3fcda5a4406b",
+      "name": "splite images u"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().slice(0, $('config').first().json.nbrAccont);\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1152,
+        144
+      ],
+      "id": "f9e20f24-7c34-4eb3-8dab-fec580b4f67a",
+      "name": "limits return1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6cd29712-bea4-4450-a164-0bea1d389abc",
+              "name": "promp accont 1",
+              "value": "{ \"title 1\": \"Act as a Pinterest SEO expert. Write under 90 characters a clickable title  for a pin about [Keyword]. Include high-volume keywords Choose the hook that is most contextually relevant to the Pin's topic (e.g., use \\\"For Small Spaces\\\" only for decor/organization topics, use \\\"Under $20\\\" for budget topics). Ensure variety: Do not repeat the same hook multiple times if generating a batch of titles. Use the full range of the list. The structure must be: [Hook Phrase]: [Main Keyword/Title] OR [Hook Phrase] [Main Keyword/Title]. Hook Phrases List: For Moms, For Beginners, For Renters, For Small Spaces, For Busy Women, For Teens, For Families, Mistakes, Avoid, Stop Doing This, Nobody Tells You, Warning, Don’t Do This, Cheap, On a Budget, Under $20, Affordable, Low-Cost, Save Money, Lazy, Effortless, 5-Minute, Stress-Free, Simplest, Done-for-You, Step-by-Step, How To, Fast, In Minutes, No-Skill, Zero Effort, Do This, Must-See, Game-Changer, Aesthetic, Beautiful, Gorgeous, Dreamy, Modern, Minimalist, Chic, Cute, Quick, Cozy, Genius, Stunning, Secret, Cheap, Budget, Small, Beginner. Why was it phrased this way? Selection Rules: Rules were set to ensure that the AI does not choose randomly, but selects what fits the topic (for example it won't use the word \\\"Delicious\\\" for a décor topic, and similarly, it won't use \\\"For Renters\\\" for a cooking recipe). Ensure variety: I instructed it to vary the choices over time to cover the entire list and not focus on a single word like \\\"How To.\\\" Structure: I specified the sentence structure to ensure that the word appears at the beginning of the title. Example of the expected result after modification: If the topic is about \\\"Kitchen Organization\\\": For Small Spaces: genius Kitchen Organization Ideas Stop Doing This: Common Kitchen Storage Mistakes Under $20: Affordable Pantry Makeover Aesthetic: Minimalist Spice Jar Labels Lazy: 5-Minute Kitchen Cleanup Routine\",  \"description 1\": \"Create a Pinterest Pin description in English, optimized for Pinterest SEO, with a maximum of 450 characters. The description should start with the exact keyword, naturally include 3–4 related Pinterest interest keywords, and be engaging to encourage clicks. Make it sound natural, human-written, and suitable for Pinterest users searching for this type of content\",  \"tagline 1\": \"Generate a short, punchy tagline of maximum three words that conveys the essence of the keyword\",  \"board 1\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",  \"title 1\": \"Act as a Pinterest SEO expert. Write under 90 characters a clickable title  for a pin about [Keyword]. Include high-volume keywords Choose the hook that is most contextually relevant to the Pin's topic (e.g., use \\\"For Small Spaces\\\" only for decor/organization topics, use \\\"Under $20\\\" for budget topics). Ensure variety: Do not repeat the same hook multiple times if generating a batch of titles. Use the full range of the list. The structure must be: [Hook Phrase]: [Main Keyword/Title] OR [Hook Phrase] [Main Keyword/Title]. Hook Phrases List: For Moms, For Beginners, For Renters, For Small Spaces, For Busy Women, For Teens, For Families, Mistakes, Avoid, Stop Doing This, Nobody Tells You, Warning, Don’t Do This, Cheap, On a Budget, Under $20, Affordable, Low-Cost, Save Money, Lazy, Effortless, 5-Minute, Stress-Free, Simplest, Done-for-You, Step-by-Step, How To, Fast, In Minutes, No-Skill, Zero Effort, Do This, Must-See, Game-Changer, Aesthetic, Beautiful, Gorgeous, Dreamy, Modern, Minimalist, Chic, Cute, Quick, Cozy, Genius, Stunning, Secret, Cheap, Budget, Small, Beginner. Why was it phrased this way? Selection Rules: Rules were set to ensure that the AI does not choose randomly, but selects what fits the topic (for example it won't use the word \\\"Delicious\\\" for a décor topic, and similarly, it won't use \\\"For Renters\\\" for a cooking recipe). Ensure variety: I instructed it to vary the choices over time to cover the entire list and not focus on a single word like \\\"How To.\\\" Structure: I specified the sentence structure to ensure that the word appears at the beginning of the title. Example of the expected result after modification: If the topic is about \\\"Kitchen Organization\\\": For Small Spaces: genius Kitchen Organization Ideas Stop Doing This: Common Kitchen Storage Mistakes Under $20: Affordable Pantry Makeover Aesthetic: Minimalist Spice Jar Labels Lazy: 5-Minute Kitchen Cleanup Routine\",  \"description 2\": \"Create a Pinterest Pin description under 480 characters starting with Main Keyword. Include 3–4 related keywords and use a curiosity-driven tone that makes readers want to click to discover more. Keep it natural, human-like, and optimized for Pinterest search\",  \"tagline 2\": \"Produce a three-word or less phrase that makes the keyword sound irresistible\",  \"board 2\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",  \"title 1\": \"Act as a Pinterest SEO expert. Write under 90 characters a clickable title  for a pin about [Keyword]. Include high-volume keywords Choose the hook that is most contextually relevant to the Pin's topic (e.g., use \\\"For Small Spaces\\\" only for decor/organization topics, use \\\"Under $20\\\" for budget topics). Ensure variety: Do not repeat the same hook multiple times if generating a batch of titles. Use the full range of the list. The structure must be: [Hook Phrase]: [Main Keyword/Title] OR [Hook Phrase] [Main Keyword/Title]. Hook Phrases List: For Moms, For Beginners, For Renters, For Small Spaces, For Busy Women, For Teens, For Families, Mistakes, Avoid, Stop Doing This, Nobody Tells You, Warning, Don’t Do This, Cheap, On a Budget, Under $20, Affordable, Low-Cost, Save Money, Lazy, Effortless, 5-Minute, Stress-Free, Simplest, Done-for-You, Step-by-Step, How To, Fast, In Minutes, No-Skill, Zero Effort, Do This, Must-See, Game-Changer, Aesthetic, Beautiful, Gorgeous, Dreamy, Modern, Minimalist, Chic, Cute, Quick, Cozy, Genius, Stunning, Secret, Cheap, Budget, Small, Beginner. Why was it phrased this way? Selection Rules: Rules were set to ensure that the AI does not choose randomly, but selects what fits the topic (for example it won't use the word \\\"Delicious\\\" for a décor topic, and similarly, it won't use \\\"For Renters\\\" for a cooking recipe). Ensure variety: I instructed it to vary the choices over time to cover the entire list and not focus on a single word like \\\"How To.\\\" Structure: I specified the sentence structure to ensure that the word appears at the beginning of the title. Example of the expected result after modification: If the topic is about \\\"Kitchen Organization\\\": For Small Spaces: genius Kitchen Organization Ideas Stop Doing This: Common Kitchen Storage Mistakes Under $20: Affordable Pantry Makeover Aesthetic: Minimalist Spice Jar Labels Lazy: 5-Minute Kitchen Cleanup Routine\",  \"description 3\": \"Create a Pinterest Pin description (max 480 characters) starting with Main keyword. Include 3–4 related Pinterest keywords and end with a strong call-to-action like “Try it today” or “Save this idea for later,” making it SEO-friendly and conversion-focused\",  \"tagline 3\": \"Come up with a three-word maximum hook that captures attention instantly\",  \"board 3\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",  \"title 1\": \"Act as a Pinterest SEO expert. Write under 90 characters a clickable title  for a pin about [Keyword]. Include high-volume keywords Choose the hook that is most contextually relevant to the Pin's topic (e.g., use \\\"For Small Spaces\\\" only for decor/organization topics, use \\\"Under $20\\\" for budget topics). Ensure variety: Do not repeat the same hook multiple times if generating a batch of titles. Use the full range of the list. The structure must be: [Hook Phrase]: [Main Keyword/Title] OR [Hook Phrase] [Main Keyword/Title]. Hook Phrases List: For Moms, For Beginners, For Renters, For Small Spaces, For Busy Women, For Teens, For Families, Mistakes, Avoid, Stop Doing This, Nobody Tells You, Warning, Don’t Do This, Cheap, On a Budget, Under $20, Affordable, Low-Cost, Save Money, Lazy, Effortless, 5-Minute, Stress-Free, Simplest, Done-for-You, Step-by-Step, How To, Fast, In Minutes, No-Skill, Zero Effort, Do This, Must-See, Game-Changer, Aesthetic, Beautiful, Gorgeous, Dreamy, Modern, Minimalist, Chic, Cute, Quick, Cozy, Genius, Stunning, Secret, Cheap, Budget, Small, Beginner. Why was it phrased this way? Selection Rules: Rules were set to ensure that the AI does not choose randomly, but selects what fits the topic (for example it won't use the word \\\"Delicious\\\" for a décor topic, and similarly, it won't use \\\"For Renters\\\" for a cooking recipe). Ensure variety: I instructed it to vary the choices over time to cover the entire list and not focus on a single word like \\\"How To.\\\" Structure: I specified the sentence structure to ensure that the word appears at the beginning of the title. Example of the expected result after modification: If the topic is about \\\"Kitchen Organization\\\": For Small Spaces: genius Kitchen Organization Ideas Stop Doing This: Common Kitchen Storage Mistakes Under $20: Affordable Pantry Makeover Aesthetic: Minimalist Spice Jar Labels Lazy: 5-Minute Kitchen Cleanup Routine\",  \"description 4\": \"Write an SEO-optimized Pinterest Pin description under 480 characters, starting with Main Keyword. Naturally include 3–4 related keywords and focus on the benefits, results, or transformations the reader will experience after trying this idea/recipe/project\",  \"tagline 4\": \"Write a maximum three-word power phrase that makes the keyword unforgettable\",  \"board 4\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",  \"midjourny\": \"Different from its predecessor Focus on the details --iw 2 --ar 1:1 --v 7 --raw\"}",
+              "type": "object"
+            },
+            {
+              "id": "ee6a6587-5a9b-4b8a-96ed-977921b84ebc",
+              "name": "promp accont 2",
+              "value": "{  \"title 1\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword, highlighting a benefit, solution, or quick tip, and optimized for Pinterest SEO\",  \"description 1\": \"Create a Pinterest Pin description in English, optimized for Pinterest SEO, with a maximum of 500 characters. The description should start with the exact keyword, naturally include 3–4 related Pinterest interest keywords, and be engaging to encourage clicks. Make it sound natural, human-written, and suitable for Pinterest users searching for this type of content\",  \"tagline 1\": \"Generate a short, punchy tagline of maximum three words that conveys the essence of the keyword\",  \"board 1\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",  \"title 2\": \"Write a Pinterest Pin title under 100 characters that starts with Main Keyword, uses a trending or viral hook, and is optimized for Pinterest SEO while sparking curiosity.\",  \"description 2\": \"Create a Pinterest Pin description under 500 characters starting with Main Keyword. Include 3–4 related keywords and use a curiosity-driven tone that makes readers want to click to discover more. Keep it natural, human-like, and optimized for Pinterest search\",  \"tagline 2\": \"Produce a three-word or less phrase that makes the keyword sound irresistible\",  \"board 2\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",  \"title 3\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword that makes the reader imagine the taste, smell, and texture instantly\",  \"description 3\": \"Create a Pinterest Pin description (max 500 characters) starting with Main Keyword. Include 3–4 related Pinterest keywords and end with a strong call-to-action like “Try it today” or “Save this idea for later,” making it SEO-friendly and conversion-focused\",  \"tagline 3\": \"Come up with a three-word maximum hook that captures attention instantly\",  \"board 3\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",  \"title 4\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword that challenges the reader to make it better or faster than anyone else.\",  \"description 4\": \"Write an SEO-friendly Pinterest Pin description under 500 characters starting with Main Keyword. Paint a vivid, sensory picture of the moment the dish is served and eaten. Naturally add 3–4 Pinterest keywords related to the recipe. Make it emotional, inviting, and memorable.\",  \"tagline 4\": \"Write a maximum three-word power phrase that makes the keyword unforgettable\",  \"board 4\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",|\"midjourny\" : \"Different from its predecessor Focus on the details --iw 2 --ar 1:1 --v 7 --raw\"}",
+              "type": "object"
+            },
+            {
+              "id": "c0a673a4-330e-4ffe-afcd-ae5907e4ac8a",
+              "name": "promp accont 3",
+              "value": "{  \"title 1\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword that evokes comfort food memories and childhood flavors.\",  \"description 1\": \"Write an SEO-optimized Pinterest Pin description max 500 characters starting with Main Keyword. Present it as a trending or viral recipe everyone is talking about. Naturally add 3–4 Pinterest keywords and use urgency words like “Don’t miss this” or “Join the trend” to spark curiosity.\",  \"tagline 1\": \"Generate a short, punchy tagline of maximum three words that conveys the essence of the keyword\",  \"board 1\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",  \"title 2\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword that highlights how it can impress guests at a gathering.\",  \"description 2\": \"Create a Pinterest Pin description max 500 characters starting with Main Keyword. Highlight a unique or unexpected ingredient that makes the dish unforgettable. Naturally include 3–4 Pinterest keywords while keeping the tone mysterious and enticing.\",  \"tagline 2\": \"Produce a three-word or less phrase that makes the keyword sound irresistible\",  \"board 2\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",  \"title 3\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword that reassures readers it’s easy to follow with simple steps.\",  \"description 3\": \"Write an SEO-friendly Pinterest Pin description (max 500 characters) starting with Main Keyword. Emphasize how easy and foolproof it is—perfect results every time. Naturally add 3–4 relevant Pinterest keywords for maximum search visibility.\",  \"tagline 3\": \"Come up with a three-word maximum hook that captures attention instantly\",  \"board 3\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",  \"title 4\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword that spotlights its nutritious ingredients or healthy benefits.\",  \"description 4\": \"Craft a Pinterest Pin description max 500 characters starting with Main Keyword. Outline how the recipe can be made in just 3 simple steps. Include 3–4 Pinterest keywords naturally, appealing to readers who want quick and simple cooking.\",  \"tagline 4\": \"Write a maximum three-word power phrase that makes the keyword unforgettable\",  \"board 4\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",|\"midjourny\" : \"Different from its predecessor, Focus on the details --iw 2 --ar 1:1 --v 7 --raw\"}",
+              "type": "object"
+            },
+            {
+              "id": "a1b1e8c9-b7cb-42a1-b2c2-f6f4a8cb2513",
+              "name": "promp accont 4",
+              "value": "{ \"title 1\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword that suggests transforming an ordinary dinner into something special\",  \"description 1\": \"Write an SEO-friendly Pinterest Pin description (max 500 characters) starting with the keyword. Present it as a game-changer in the kitchen, explaining how it’s different from any recipe they’ve tried before. Naturally include 3–4 Pinterest keywords like “Easy Recipes,” “Dinner Recipes,” “Comfort Food,” and “Pasta Recipes.”\",  \"tagline 1\": \"Generate a short, punchy tagline of maximum three words that conveys the essence of the keyword\",  \"board 1\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",  \"title 2\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword that challenges the reader to make it better or faster than anyone else.\",  \"description 2\": \"Create a Pinterest Pin description (max 500 characters) starting with Main Keyword. Connect the recipe to nostalgic or traditional flavors, making it feel like a comforting dish from home. Include 3–4 relevant Pinterest keywords naturally while keeping the tone warm and inviting.\",  \"tagline 2\": \"Produce a three-word or less phrase that makes the keyword sound irresistible\",  \"board 2\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",  \"title 3\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword that gives the impression it’s an expert chef’s secret recipe\",  \"description 3\": \"Write a Pinterest Pin description (max 500 characters) starting with Main Keyword. Focus on the simplicity and accessibility of the ingredients, showing how anyone can make it without fancy tools. Include 3–4 Pinterest keywords naturally, keeping it beginner-friendly and SEO-optimized.\",  \"tagline 3\": \"Come up with a three-word maximum hook that captures attention instantly\",  \"board 3\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",  \"title 4\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword that taps into a trending food keyword on Pinterest and sparks curiosity to click\",  \"description 4\": \"Create a Pinterest Pin description (max 500 characters) starting with Main Keyword. Use sensory language to describe the smell, taste, and texture in mouthwatering detail. Naturally add 3–4 relevant Pinterest keywords, making it irresistible for food lovers to click and save.\",  \"tagline 4\": \"Write a maximum three-word power phrase that makes the keyword unforgettable\",  \"board 4\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\", \"midjourny\" : \"Different from its predecessor, Focus on the details --iw 2 --ar 1:1 --v 7 --raw\"}",
+              "type": "object"
+            },
+            {
+              "id": "5d8c50b4-e9c4-45cb-9aff-05992a086124",
+              "name": "promp accont 5",
+              "value": "{ \"title 1\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword that evokes comfort food memories and childhood flavors.\",  \"description 1\": \"Write an SEO-optimized Pinterest Pin description (max 500 characters) starting with Main Keyword. Present it as a trending or viral recipe everyone is talking about. Naturally add 3–4 Pinterest keywords and use urgency words like “Don’t miss this” or “Join the trend” to spark curiosity.\",  \"tagline 1\": \"Generate a short, punchy tagline of maximum three words that conveys the essence of the keyword\",  \"board 1\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",  \"title 2\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword that highlights how it can impress guests at a gathering.\",  \"description 2\": \"Create a Pinterest Pin description (max 500 characters) starting with Main Keyword. Highlight a unique or unexpected ingredient that makes the dish unforgettable. Naturally include 3–4 Pinterest keywords while keeping the tone mysterious and enticing.\",  \"tagline 2\": \"Produce a three-word or less phrase that makes the keyword sound irresistible\",  \"board 2\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",  \"title 3\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword that reassures readers it’s easy to follow with simple steps.\",  \"description 3\": \"Write an SEO-friendly Pinterest Pin description (max 500 characters) starting with Main Keyword. Emphasize how easy and foolproof it is—perfect results every time. Naturally add 3–4 relevant Pinterest keywords for maximum search visibility.\",  \"tagline 3\": \"Come up with a three-word maximum hook that captures attention instantly\",  \"board 3\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",  \"title 4\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword that spotlights its nutritious ingredients or healthy benefits.\",  \"description 4\": \"Craft a Pinterest Pin description (max 500 characters) starting with Main Keyword. Outline how the recipe can be made in just 3 simple steps. Include 3–4 Pinterest keywords naturally, appealing to readers who want quick and simple cooking.\",  \"tagline 4\": \"Write a maximum three-word power phrase that makes the keyword unforgettable\",  \"board 4\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",\"midjourny\" : \"Different from its predecessor, Focus on the details --iw 2 --ar 1:1 --v 7 --raw\" }",
+              "type": "object"
+            },
+            {
+              "id": "81975b05-7e98-4e60-b9cd-f508e238a53e",
+              "name": "promp accont 6",
+              "value": "{ \"title 1\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword that uses a trending seasonal or holiday theme to boost clicks.\",  \"description 1\": \"Write a Pinterest Pin description under 500 characters starting with Main Keyword, linking it to a seasonal or festive vibe. Naturally weave in 3–4 related keywords and spark curiosity for holiday planners and event lovers.\",  \"tagline 1\": \"Write a short, catchy phrase (3 words max) designed to grab attention instantly\",  \"board 1\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",  \"title 2\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword that positions it as a chef’s secret recipe revealed to the public.\",  \"description 2\": \"Create a Pinterest Pin description under 500 characters starting with Main Keyword, presenting it as a hidden gem now uncovered. Naturally include 3–4 related keywords while making readers feel like they’ve unlocked an insider’s secret.\",  \"tagline 2\": \"Generate a maximum three-word hook that sparks immediate curiosity\",  \"board 2\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",  \"title 3\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword that emphasizes it as a quick 15-minute meal for busy days.\",  \"description 3\": \"Write a Pinterest Pin description max 500 characters starting with Main Keyword, focusing on speed and convenience for hectic schedules. Naturally add 3–4 related keywords to appeal to time-crunched home cooks.\",  \"tagline 3\": \"Craft a bold, up-to-three-word slogan that stops the scroll\",  \"board 3\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",  \"title 4\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword highlighting it as a budget-friendly family favorite.\",  \"description 4\": \"Create a Pinterest Pin description max 500 characters starting with Main Keyword, showing how it satisfies a whole family without breaking the bank. Naturally include 3–4 related keywords while keeping the tone warm and relatable.\",  \"tagline 4\": \"Come up with a punchy, three-word max tagline that instantly stands out\",  \"board 4\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",\"midjourny\" : \"Different from its predecessor, Focus on the details --iw 2 --ar 1:1 --v 7 --raw\"}",
+              "type": "object"
+            },
+            {
+              "id": "cb9e4bf2-5ad8-4f2f-9a7c-7665e4e0cd35",
+              "name": "promp accont 7",
+              "value": "{  \"title 1\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword framing it as a luxurious gourmet dish worth trying.\",  \"description 1\": \"Write a Pinterest Pin description under 500 characters starting with Main Keyword, portraying it as an indulgent, restaurant-quality meal. Naturally add 3–4 related keywords to inspire foodies who crave elegance on their plate.\",  \"tagline 1\": \"Write a snappy 3-word hook that demands attention immediately\",  \"board 1\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",  \"title 2\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword showcasing it as a nostalgic comfort food from childhood.\",  \"description 2\": \"Create a Pinterest Pin description under 500 characters starting with Main Keyword, evoking warm memories and cozy vibes. Naturally include 3–4 related keywords to appeal to those who love traditional, heartwarming recipes.\",  \"tagline 2\": \"Create a bold phrase (max 3 words) that sparks instant intrigue\",  \"board 2\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",  \"title 3\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword promoting it as a perfect dish for impressing guests at dinner parties.\",  \"description 3\": \"Write a Pinterest Pin description max 500 characters starting with Main Keyword, highlighting its wow factor for special occasions. Naturally use 3–4 related keywords to attract hosts seeking memorable recipes.\",  \"tagline 3\": \"Generate a powerful three-word max headline that stops readers cold\",  \"board 3\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",  \"title 4\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword appealing to health-conscious eaters without sacrificing flavor.\",  \"description 4\": \"Create a Pinterest Pin description max 500 characters starting with Main Keyword, emphasizing its wholesome ingredients and balanced nutrition. Naturally add 3–4 related keywords for those seeking healthy yet delicious meals.\",  \"tagline 4\": \"Craft a magnetic, up-to-three-word phrase that pulls people in\",  \"board 4\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\", \"midjourny\" : \"Different from its predecessor, Focus on the details --iw 2 --ar 1:1 --v 7 --raw\"}",
+              "type": "object"
+            },
+            {
+              "id": "fb82eaa2-01fe-469f-9c7f-7b8084ce11e2",
+              "name": "promp accont 8",
+              "value": "{ \"title 1\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword teasing it as a viral recipe everyone is talking about.\",  \"description 1\": \"Write a Pinterest Pin description under 500 characters starting with Main Keyword, framing it as the latest viral hit you must try. Naturally include 3–4 related keywords to hook trend-chasers and food lovers.\",  \"tagline 1\": \"Invent a short and sharp 3-word hook that sticks in the mind\",  \"board 1\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",  \"title 2\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword making it sound like a shocking flavor combination that works.\",  \"description 2\": \"Create a Pinterest Pin description under 500 characters starting with Main Keyword, surprising readers with an unexpected yet delicious twist. Naturally include 3–4 related keywords to intrigue adventurous eaters.\",  \"tagline 2\": \"Invent a short and sharp 3-word hook that sticks in the mind\",  \"board 2\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",  \"title 3\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword challenging readers to cook it better than the original.\",  \"description 3\": \"Write a Pinterest Pin description max 500 characters starting with Main Keyword, turning it into a fun cooking challenge. Naturally add 3–4 related keywords to appeal to competitive home cooks and food bloggers.\",  \"tagline 3\": \"Come up with a scroll-stopping phrase of no more than three words\",  \"board 3\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",  \"title 4\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword positioning it as the one recipe you’ll regret not saving.\",  \"description 4\": \"Create a Pinterest Pin description max 500 characters starting with Main Keyword, urging readers to pin it now or miss out. Naturally include 3–4 related keywords to build urgency and fear of missing out.\",  \"tagline 4\": \"Produce a mini tagline (3 words) that instantly excites curiosity\",  \"board 4\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\", \"midjourny\" : \"Different from its predecessor, Focus on the details --iw 2 --ar 1:1 --v 7 --raw\"}",
+              "type": "object"
+            },
+            {
+              "id": "9ee2b246-6728-4b2d-b325-deb7fb396538",
+              "name": "promp accont 9",
+              "value": "{ \"title 1\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword positioning it as the ultimate beginner-friendly recipe anyone can master.\",  \"description 1\": \"Write a Pinterest Pin description under 500 characters starting with Main Keyword, showing how even first-time cooks can nail it perfectly. Naturally include 3–4 related keywords to inspire kitchen confidence.\",  \"tagline 1\": \"Make a punchy hook, max 3 words, that instantly grabs the eye\",  \"board 1\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",  \"title 2\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword framing it as the perfect budget meal under $10.\",  \"description 2\": \"Create a Pinterest Pin description under 500 characters starting with Main Keyword, highlighting its low cost without compromising taste. Naturally include 3–4 related keywords to attract budget-conscious cooks.\",  \"tagline 2\": \"Generate a micro slogan (three words max) designed to stand out fast\",  \"board 2\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",  \"title 3\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword presenting it as the ultimate one-pan cleanup-friendly dish.\",  \"description 3\": \"Write a Pinterest Pin description max 500 characters starting with Main Keyword, focusing on how it saves time in both cooking and cleaning. Naturally add 3–4 related keywords for busy home cooks.\",  \"tagline 3\": \"Write a captivating phrase under three words that hooks instantly\",  \"board 3\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",  \"title 4\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword showcasing it as a quick 5-ingredient magic recipe.\",  \"description 4\": \"Create a Pinterest Pin description max 500 characters starting with Main Keyword, showing how just five ingredients can create something amazing. Naturally include 3–4 related keywords to appeal to minimal-effort cooks.\",  \"tagline 4\": \"Create a three-word spark that provokes instant emotion\",  \"board 4\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",\"midjourny\" : \"Different from its predecessor, Focus on the details --iw 2 --ar 1:1 --v 7 --raw\"}",
+              "type": "object"
+            },
+            {
+              "id": "3271d544-4fa0-49c4-b8e1-13ec356bf3a0",
+              "name": "promp accont 10",
+              "value": "{  \"title 1\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword promoting it as the ultimate crowd-pleaser for any gathering.\",  \"description 1\": \"Write a Pinterest Pin description under 500 characters starting with Main Keyword, emphasizing how it wins over guests every time. Naturally add 3–4 related keywords to appeal to party hosts and social gatherings.\",  \"tagline 1\": \"Write a micro-hook (3 words) that people will instantly remember\",  \"board 1\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",  \"title 2\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword positioning it as a better-than-takeout recipe you can make at home.\",  \"description 2\": \"Create a Pinterest Pin description under 500 characters starting with Main Keyword, showing how it outshines restaurant versions. Naturally include 3–4 related keywords to appeal to home cooks who crave takeout flavors.\",  \"tagline 2\": \"Generate a punchline of max 3 words that feels bold and edgy\",  \"board 2\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",  \"title 3\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword describing it as the coziest comfort food for cold days.\",  \"description 3\": \"Write a Pinterest Pin description max 500 characters starting with Main Keyword, evoking warmth and coziness perfect for winter nights. Naturally use 3–4 related keywords to attract those seeking seasonal comfort.\",  \"tagline 3\": \"Produce a three-word teaser that leaves people wanting more\",  \"board 3\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",  \"title 4\": \"Create a Pinterest Pin title under 100 characters starting with Main Keyword making it sound like the secret recipe your grandma swore by.\",  \"description 4\": \"Create a Pinterest Pin description max 500 characters starting with Main Keyword, telling a nostalgic story of a passed-down family treasure. Naturally include 3–4 related keywords to connect with tradition lovers.\",  \"tagline 4\": \"Generate a super-short hook (max 3 words) that commands attention\",  \"board 4\": \"Given a recipe name or keyword, assign it to exactly one Pinterest board from the following list only: Dinner Recipes, Chicken Recipes, Pasta Recipes, Breakfast Recipes, Healthy Recipes, Soup Recipes, Salad Recipes, Shrimp Recipes, Dessert Recipes, Cake Recipes, Bread Recipes, Appetizer Recipes, Beef Recipes, Seafood Recipes, Slow Cooker Recipes, Air Fryer Recipes, Instant Pot Recipes, Side Dishes, Easy Recipes, Casserole Recipes. Do not invent new boards. If no exact match is found, assign it to the closest related board based on the recipe's main ingredient or cooking method. Output only the board name without any extra text\",\"midjourny\" : \"Different from its predecessor, Focus on the details --iw 2 --ar 1:1 --v 7 --raw\"}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        384,
+        144
+      ],
+      "id": "214036c9-8d08-4714-a550-546ada616017",
+      "name": "promps"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1952,
+        144
+      ],
+      "id": "65d428c0-f025-4d75-be91-14fb2472d43f",
+      "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "W1PpkWNTEJutazoY",
+          "mode": "list",
+          "cachedResultName": "Loop Api Link Strawberry Discourd Brave"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "nbr": "={{ $('config').first().json['accont selected'] }}",
+            "get": "p",
+            "vdata": "={{ $json.vdata }}",
+            "row_number": "={{ $('Loop Over Items1').item.json.row_number }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "nbr",
+              "displayName": "nbr",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "array"
+            },
+            {
+              "id": "keyword",
+              "displayName": "keyword",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number"
+            },
+            {
+              "id": "get",
+              "displayName": "get",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "vdata",
+              "displayName": "vdata",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "array"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2576,
+        80
+      ],
+      "id": "f3022ae2-6a48-401a-aa05-5c5b1f05917e",
+      "name": "get u from v2",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2784d4cd-5564-4c74-b53f-e4ae6a6e2897",
+              "name": "account 1",
+              "value": "",
+              "type": "object"
+            },
+            {
+              "id": "03670a7e-eb02-43ea-be38-fce57c69381a",
+              "name": "account 2",
+              "value": "",
+              "type": "object"
+            },
+            {
+              "id": "1f2971d8-089c-4e90-83db-372c97aeda04",
+              "name": "account 3",
+              "value": "",
+              "type": "object"
+            },
+            {
+              "id": "c705cbd7-7aa5-4928-a928-6a9b5520565c",
+              "name": "account 4",
+              "value": "",
+              "type": "object"
+            },
+            {
+              "id": "fa0880e1-1db5-49e8-b126-c77ac5c08f1f",
+              "name": "account 5",
+              "value": "",
+              "type": "object"
+            },
+            {
+              "id": "cf8df825-fde5-4253-9a01-3d9fb07e3c47",
+              "name": "account 6",
+              "value": "",
+              "type": "object"
+            },
+            {
+              "id": "1d120000-2f10-4188-aac4-f2b82a803849",
+              "name": "account 7",
+              "value": "",
+              "type": "object"
+            },
+            {
+              "id": "6e23feb8-2fad-4b21-b680-8aa927988e5e",
+              "name": "account 8",
+              "value": "",
+              "type": "object"
+            },
+            {
+              "id": "bb722daf-8af0-4d89-bc7a-60b6c8322383",
+              "name": "account 9",
+              "value": "",
+              "type": "object"
+            },
+            {
+              "id": "243cab93-2642-4e8b-aafd-7ab067d25db7",
+              "name": "account 10",
+              "value": "",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        640,
+        144
+      ],
+      "id": "99359c62-3631-4c1f-b539-9d5433431a4c",
+      "name": "set place id"
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "id": "3806cb73-d6a0-4455-8b64-239e01e52031",
+      "name": "SplitInBatches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 1,
+      "position": [
+        128,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1-IV5--hOOorr8ndeREXnktOrVeKI21Ja0DARc-rmL-Y",
+          "mode": "list",
+          "cachedResultName": "5 My Coffee Blog 03/08",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-IV5--hOOorr8ndeREXnktOrVeKI21Ja0DARc-rmL-Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Feuille 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-IV5--hOOorr8ndeREXnktOrVeKI21Ja0DARc-rmL-Y/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "state"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -2112,
+        800
+      ],
+      "id": "10d29dee-81fd-48b3-869b-7f4f9e778af2",
+      "name": "Get keyword",
+      "alwaysOutputData": true,
+      "notesInFlow": false,
+      "executeOnce": false,
+      "retryOnFail": false,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "KtJ0AOOeD4DpObI5",
+          "name": "Google Sheets account 3"
+        }
+      },
+      "notes": "b"
+    },
+    {
+      "parameters": {
+        "content": "## GENERATE PLACE ID\ngenerate title template ...",
+        "height": 432,
+        "width": 2672
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "b7cdd42f-e9b6-4d6d-b42f-56630dd57280",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## UPSCALE\nGENERATE U! U@ FOR EASH IMAGE ",
+        "height": 400,
+        "width": 2128,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -832,
+        464
+      ],
+      "typeVersion": 1,
+      "id": "beb4a288-6533-406e-a0d9-6c5d75b0299d",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "728b6f0f-078f-4ef8-ab24-9e80d0a9033f",
+              "name": "account 1",
+              "value": "Different from its predecessor Focus on the details --iw 2 --ar 1:1 --v 7 --raw",
+              "type": "string"
+            },
+            {
+              "id": "f3dbc975-fcda-47ab-b06d-def39631759d",
+              "name": "account 2",
+              "value": "Different from its predecessor Focus on the details --iw 2 --ar 1:1 --v 7 --raw",
+              "type": "string"
+            },
+            {
+              "id": "37582889-8e13-4962-bc28-5040622dd7a5",
+              "name": "account 3",
+              "value": "Different from its predecessor Focus on the details --iw 2 --ar 1:1 --v 7 --raw",
+              "type": "string"
+            },
+            {
+              "id": "4e7f1263-b834-4f2d-998e-157657b8787b",
+              "name": "account 4",
+              "value": "Different from its predecessor Focus on the details --iw 2 --ar 1:1 --v 7 --raw",
+              "type": "string"
+            },
+            {
+              "id": "84ba22d6-bf8b-43ca-b38e-eb5d723e2255",
+              "name": "account 5",
+              "value": "Different from its predecessor Focus on the details --iw 2 --ar 1:1 --v 7 --raw",
+              "type": "string"
+            },
+            {
+              "id": "e2d5cb58-2d14-4906-a8a0-e55fe62f0ad5",
+              "name": "account 6",
+              "value": "Different from its predecessor Focus on the details --iw 2 --ar 1:1 --v 7 --raw",
+              "type": "string"
+            },
+            {
+              "id": "8eea840c-8772-4d04-8ce6-eb6408dd237d",
+              "name": "account 7",
+              "value": "Different from its predecessor Focus on the details --iw 2 --ar 1:1 --v 7 --raw",
+              "type": "string"
+            },
+            {
+              "id": "a9036deb-38a5-4ed2-a9c1-92cafee2553b",
+              "name": "account 8",
+              "value": "Different from its predecessor Focus on the details --iw 2 --ar 1:1 --v 7 --raw",
+              "type": "string"
+            },
+            {
+              "id": "1107acb1-9902-469c-8a9b-5d3830db7872",
+              "name": "account 9",
+              "value": "Different from its predecessor Focus on the details --iw 2 --ar 1:1 --v 7 --raw",
+              "type": "string"
+            },
+            {
+              "id": "ae53af35-e1d4-49d7-a4f9-4cd26df63bf8",
+              "name": "account 10",
+              "value": "Different from its predecessor Focus on the details --iw 2 --ar 1:1 --v 7 --raw",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2816,
+        800
+      ],
+      "id": "cc0b46ee-7ad6-4504-8521-a4baba38d449",
+      "name": "midourny promps"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1072,
+        688
+      ],
+      "id": "0ceff341-7a5a-46ca-95ee-e334ff1b9383",
+      "name": "between line upscale",
+      "webhookId": "0ffb9be7-d072-4873-87e0-283ba76610c7"
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2800,
+        144
+      ],
+      "id": "2fa535c7-8d5a-47a0-8253-43cda40a7dd8",
+      "name": "between line placeid",
+      "webhookId": "9405a724-ce92-4687-9b7c-550e0537a765"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -384,
+        976
+      ],
+      "id": "b833d324-244b-4a21-805e-185b3436610a",
+      "name": "line generation",
+      "webhookId": "f68ad1dc-5a90-45b5-8f9e-b134f39ba068"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst outputItems = [];\n\nfor (const item of items) {\n  const data = item.json;\n\n  const rawTemplite = String(data.templite ?? '').trim();\n  if (!rawTemplite) continue;\n\n  const selectedIndexes = rawTemplite\n    .split(',')\n    .map(s => parseInt(s.trim(), 10))\n    .filter(n => n >= 1 && n <= 6);\n\n  if (selectedIndexes.length === 0) continue;\n\n  // Parse account list from the row\n  const rawAccount = String(data.account ?? '').trim();\n  const allowedAccounts = rawAccount\n    .split(',')\n    .map(s => parseInt(s.trim(), 10))\n    .filter(n => !isNaN(n));\n\n  for (const idx of selectedIndexes) {\n    const accountCombos = [];\n\n    for (let acc = 1; acc <= 10; acc++) {\n\n      // Only process accounts listed in the row's \"account\" column\n      if (!allowedAccounts.includes(acc)) continue;\n\n      const images = [];\n\n      for (const prefix of ['U1', 'U2', 'U3', 'U4']) {\n        const key = `${prefix} ${acc}`;\n        if (data[key] && data[key].trim() !== '') {\n          images.push({ label: key, url: data[key] });\n        }\n      }\n\n      if (images.length < 2) continue;\n\n      const allCombos = [];\n      for (let i = 0; i < images.length; i++) {\n        for (let j = i + 1; j < images.length; j++) {\n          allCombos.push([images[i], images[j]]);\n        }\n      }\n\n      const combo = allCombos[idx - 1];\n      if (!combo) continue;\n\n      const [img1, img2] = combo;\n      accountCombos.push({\n        account: acc,\n        combo_label: `${img1.label} + ${img2.label}`,\n        image1_label: img1.label,\n        image1_url: img1.url,\n        image2_label: img2.label,\n        image2_url: img2.url,\n      });\n    }\n\n    if (accountCombos.length === 0) continue;\n\n    outputItems.push({\n      json: {\n        row_number: data.row_number,\n        KEYWORDS: data.KEYWORDS,\n        link: data.link,\n        Date: data.Date,\n        account: data.account,       // ← pass through for splite images u\n        state: data.state,           // ← pass through\n        templite_combo_number: idx,\n        accounts: accountCombos,\n      }\n    });\n  }\n}\n\nreturn outputItems;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1472,
+        144
+      ],
+      "id": "d9b3c6b4-8838-4607-9bad-fa619e3ee893",
+      "name": "get all possibility"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "728b6f0f-078f-4ef8-ab24-9e80d0a9033f",
+              "name": "account 1",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "f3dbc975-fcda-47ab-b06d-def39631759d",
+              "name": "account 2",
+              "value": "2",
+              "type": "string"
+            },
+            {
+              "id": "37582889-8e13-4962-bc28-5040622dd7a5",
+              "name": "account 3",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "4e7f1263-b834-4f2d-998e-157657b8787b",
+              "name": "account 4",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "84ba22d6-bf8b-43ca-b38e-eb5d723e2255",
+              "name": "account 5",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "e2d5cb58-2d14-4906-a8a0-e55fe62f0ad5",
+              "name": "account 6",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "8eea840c-8772-4d04-8ce6-eb6408dd237d",
+              "name": "account 7",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "a9036deb-38a5-4ed2-a9c1-92cafee2553b",
+              "name": "account 8",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "1107acb1-9902-469c-8a9b-5d3830db7872",
+              "name": "account 9",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "ae53af35-e1d4-49d7-a4f9-4cd26df63bf8",
+              "name": "account 10",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2592,
+        800
+      ],
+      "id": "e8db8a5c-e746-493a-be6b-6e79ab843580",
+      "name": "account tokens"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "728b6f0f-078f-4ef8-ab24-9e80d0a9033f",
+              "name": "account 1",
+              "value": "5006",
+              "type": "string"
+            },
+            {
+              "id": "f3dbc975-fcda-47ab-b06d-def39631759d",
+              "name": "account 2",
+              "value": "2",
+              "type": "string"
+            },
+            {
+              "id": "37582889-8e13-4962-bc28-5040622dd7a5",
+              "name": "account 3",
+              "value": "5007",
+              "type": "string"
+            },
+            {
+              "id": "4e7f1263-b834-4f2d-998e-157657b8787b",
+              "name": "account 4",
+              "value": "4",
+              "type": "string"
+            },
+            {
+              "id": "84ba22d6-bf8b-43ca-b38e-eb5d723e2255",
+              "name": "account 5",
+              "value": "5",
+              "type": "string"
+            },
+            {
+              "id": "e2d5cb58-2d14-4906-a8a0-e55fe62f0ad5",
+              "name": "account 6",
+              "value": "Different from its predecessor Focus on the details --iw 2 --ar 1:1 --v 7 --raw",
+              "type": "string"
+            },
+            {
+              "id": "8eea840c-8772-4d04-8ce6-eb6408dd237d",
+              "name": "account 7",
+              "value": "Different from its predecessor Focus on the details --iw 2 --ar 1:1 --v 7 --raw",
+              "type": "string"
+            },
+            {
+              "id": "a9036deb-38a5-4ed2-a9c1-92cafee2553b",
+              "name": "account 8",
+              "value": "Different from its predecessor Focus on the details --iw 2 --ar 1:1 --v 7 --raw",
+              "type": "string"
+            },
+            {
+              "id": "1107acb1-9902-469c-8a9b-5d3830db7872",
+              "name": "account 9",
+              "value": "Different from its predecessor Focus on the details --iw 2 --ar 1:1 --v 7 --raw",
+              "type": "string"
+            },
+            {
+              "id": "ae53af35-e1d4-49d7-a4f9-4cd26df63bf8",
+              "name": "account 10",
+              "value": "Different from its predecessor Focus on the details --iw 2 --ar 1:1 --v 7 --raw",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2368,
+        800
+      ],
+      "id": "f8c49349-3389-4f9d-853f-71a967040fe1",
+      "name": "account port"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "config": {
+      "main": [
+        [
+          {
+            "node": "midourny promps",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items2": {
+      "main": [
+        [
+          {
+            "node": "SplitInBatches1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "make midjourny v",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "limits return": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "get data for variation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SplitInBatches1": {
+      "main": [
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "SplitInBatches",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "get all v id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get data for variation": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "make midjourny v": {
+      "main": [
+        [
+          {
+            "node": "line generation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get u from v": {
+      "main": [
+        [
+          {
+            "node": "between line upscale",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get all v id": {
+      "main": [
+        [
+          {
+            "node": "get u from v",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [],
+        [
+          {
+            "node": "limits return",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "limits return1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "splite images u": {
+      "main": [
+        [
+          {
+            "node": "get u from v2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "limits return1": {
+      "main": [
+        [
+          {
+            "node": "get all possibility",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "promps": {
+      "main": [
+        [
+          {
+            "node": "set place id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "splite images u",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get u from v2": {
+      "main": [
+        [
+          {
+            "node": "between line placeid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set place id": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SplitInBatches": {
+      "main": [
+        [
+          {
+            "node": "promps",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get keyword": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "midourny promps": {
+      "main": [
+        [
+          {
+            "node": "account tokens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "between line upscale": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "between line placeid": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "line generation": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get all possibility": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "account tokens": {
+      "main": [
+        [
+          {
+            "node": "account port",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "account port": {
+      "main": [
+        [
+          {
+            "node": "SplitInBatches1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "fb3621a0f10189703633e3756fd90d115de18baaaf1cc1895c6d4cb742ee96a9"
+  }
+}
